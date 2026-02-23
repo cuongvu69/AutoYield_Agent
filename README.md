@@ -1,183 +1,188 @@
-# AutoYield Agent
-DeFi Auto-Pilot Agent Wallet for Stablecoin Optimization
+# AutoYield Agent DApp
+DeFi Auto-Pilot Agent Wallet for Stablecoin Yield Optimization (DApp MVP)
 
-AutoYield Agent is an AI-powered Agent Wallet that automatically rotates USDC between lending protocols to optimize yield within user-defined risk rules.
+AutoYield Agent is a web-based DApp that creates a dedicated Agent Wallet and automatically rotates USDC between lending protocols to optimize yield under strict user-defined rules.
 
-The goal is simple:
-Let users earn better stablecoin yield without manually tracking APR or signing transactions every time.
-
----
-
-## Overview
-
-In DeFi, lending APR changes frequently across protocols such as Aave and Compound.
-
-Most users:
-- Leave stablecoins idle
-- Forget to rotate funds
-- Miss higher APR opportunities
-- Avoid automation because they fear losing control
-
-AutoYield Agent solves this by:
-
-1. Creating a dedicated Agent Wallet
-2. Allowing users to define strict rules
-3. Monitoring APR differences
-4. Executing rotations only when it makes economic sense
-
-The system is rule-based, transparent, and includes risk controls.
+This MVP runs on testnet only and is designed for live demo via browser UI (no CLI flow).
 
 ---
 
-## Core Features (MVP)
+## Product Summary
 
-- Agent Wallet (separate EOA)
-- USDC only
-- Aave vs Compound lending
-- Rule-based rotation
-- APR comparison engine
-- Gas-aware decision logic
-- Move history logging
-- Pause and emergency withdraw
-- Manual or auto execution mode
+Stablecoin lending APR changes frequently across protocols like Aave and Compound.
+Most users do not track APR and do not want to sign multiple transactions for every optimization.
+
+AutoYield Agent provides:
+- A DApp dashboard
+- A dedicated Agent Wallet address
+- Rule-based autopilot controls
+- APR monitoring and gas-aware rotation
+- Transparent decision reasoning and transaction logs
 
 ---
 
-## How It Works
+## MVP Features
 
-### Step 1: Connect Wallet
-User connects their wallet.
+### DApp UI
+- Connect wallet
+- View Agent Wallet address and USDC balance
+- Configure autopilot rules
+- Start, pause, and run check manually
+- See APR comparison and decision reasoning
+- Execute rotation (manual confirm mode)
+- View move history with tx hashes
 
-### Step 2: Fund Agent Wallet
-User deposits USDC into the Agent Wallet address.
+### Strategy (MVP)
+- Asset: USDC only
+- Protocols: Aave vs Compound
+- Strategy: rotate to higher net APR when delta >= threshold and net gain exceeds gas buffer
+- Chain: testnet only
 
-### Step 3: Configure Rules
+### Safety Controls
+- min APR delta threshold
+- max moves per day
+- cooldown minutes
+- max gas USD per move
+- pause on error
+- emergency withdraw
+
+---
+
+## DApp User Flow
+
+### 1) Onboarding
+1. User clicks Connect Wallet
+2. DApp shows:
+   - User wallet address
+   - Agent wallet address (generated from server config)
+
+### 2) Funding
+1. User transfers testnet USDC to Agent Wallet
+2. DApp shows live USDC balance
+
+### 3) Rule Setup
 User sets:
+- Risk profile preset
+- minAprDeltaPct
+- maxMovesPerDay
+- cooldownMinutes
+- maxGasUsdPerMove
+- execution mode: manual confirm or auto
 
-- Risk profile
-- Minimum APR delta
-- Maximum moves per day
-- Cooldown duration
-- Gas limit per move
-- Manual or auto execution mode
+Rules are saved in app storage for the current session (MVP uses JSON store).
 
-### Step 4: Autopilot Runs
-The system:
-- Fetches APR from Aave and Compound
-- Estimates gas cost
-- Calculates net yield difference
-- Decides whether rotation is economically rational
-- Executes withdraw + supply if conditions are met
+### 4) Autopilot
+User can:
+- Run Check Now (manual)
+- Start Autopilot (interval checks)
 
-### Step 5: Dashboard Updates
-User sees:
-- Current protocol
-- Current APR
-- Last decision reason
-- Move history
-- Transaction hashes
+The DApp shows:
+- Aave APR, Compound APR
+- estimated gas USD
+- decision output and reason
 
----
-
-## Business Model
-
-### Freemium
-Free:
-- Manual run
-- 1 move per day limit
-
-Pro Subscription:
-- Automatic monitoring
-- Unlimited moves (within rule caps)
-- Advanced analytics
-- Custom gas buffer logic
-
-Future:
-- Performance fee on yield uplift
+### 5) Execution
+In manual confirm mode:
+- DApp shows rotation suggestion
+- User clicks Execute Rotation
+- DApp sends on-chain transactions via Agent Wallet signer
+- DApp displays tx hashes and updates current protocol state
 
 ---
 
-## Safety Controls
+## Pages (UI)
 
-- Minimum APR delta threshold
-- Gas cost sanity check
-- Maximum moves per day
-- Cooldown timer
-- Max total capital limit
-- Pause button
-- Emergency withdraw
+- `/` Landing + Connect Wallet
+- `/dashboard` Main dashboard:
+  - Agent wallet card
+  - USDC balance
+  - Rule config panel
+  - APR comparison panel
+  - Autopilot controls
+  - Move history table
 
 ---
 
-## Tech Stack
+## Technical Architecture (MVP)
 
 Frontend:
-- Next.js
+- Next.js DApp UI
+- Wallet connection using wagmi or ethers BrowserProvider
 
-Blockchain:
-- ethers.js
+Backend:
+- Next.js API routes handle:
+  - rules persistence
+  - autopilot state
+  - runOnce decision
+  - optional scheduler trigger
 
-Protocols:
-- Aave (USDC lending)
-- Compound (USDC lending)
+On-chain:
+- ethers.js signer for Agent Wallet
+- Interact with Aave and Compound contracts on testnet
 
-Storage:
-- JSON store (rules, state, moves)
-
-Network:
-- Testnet only
+Data store:
+- JSON store (rules.json, state.json, moves.json)
 
 ---
 
-## Running Locally
+## Local Setup
 
-1. Install dependencies
-2. Create `.env.local` with:
+### 1) Install
+npm install
+
+### 2) Env
+Create `.env.local`:
 
 RPC_URL=
+NEXT_PUBLIC_CHAIN_ID=
 AGENT_PRIVATE_KEY=
 USDC_ADDRESS=
 AAVE_POOL_ADDRESS=
 COMPOUND_COMET_ADDRESS=
 
-3. Run:
+### 3) Run
 npm run dev
 
-4. Connect wallet
-5. Fund agent wallet
-6. Configure rules
-7. Click Run Check
+Open:
+http://localhost:3000
 
 ---
 
-## Demo Flow (Presentation Day)
+## Demo Script (Presentation)
 
-1. Connect wallet
-2. Show agent wallet balance
-3. Configure rules (min APR delta 1%)
-4. Run check
-5. Show decision reasoning
-6. Execute rotation
-7. Show transaction hash
-8. Show updated dashboard
+1. Open DApp
+2. Connect wallet
+3. Show Agent Wallet address
+4. Fund Agent Wallet with testnet USDC
+5. Configure rule: min APR delta 1%, max moves/day 1
+6. Click Run Check Now
+7. Show decision reasoning (ROTATE)
+8. Click Execute Rotation
+9. Show tx hash and updated dashboard state
+10. Pause autopilot and show emergency withdraw button
 
 ---
 
-## Why This Matters
+## Business Model
 
-DeFi is composable.
-But users are not.
+Freemium:
+- Manual checks
+- 1 move/day
 
-AutoYield Agent introduces a rule-based AI layer that makes DeFi more accessible while preserving control and transparency.
+Pro Subscription:
+- Auto monitoring
+- Unlimited moves within risk rules
+- Advanced analytics dashboard
 
-AI becomes a yield optimizer, not a black-box trading bot.
+Future:
+- Performance fee based on yield uplift vs baseline
 
 ---
 
 ## Roadmap
 
-- Multi-chain support
-- Multi-asset support
+- Multi-chain and multi-asset support
+- Protocol allowlist expansion
 - Volatility-aware risk model
-- Treasury version for DAO
-- Performance analytics dashboard
+- DAO treasury tier
+- Agent activity analytics dashboard
